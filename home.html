@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}BookVerse — Discover Your Next Great Read{% endblock %}
+{% block content %}
+
+<div class="hero-section text-center mb-5">
+  <div class="container">
+    <span class="badge hero-badge mb-3">Virtual Python Full Stack Internship · Task PY-EC-003</span>
+    <h1 class="display-5">Discover Books That Move You</h1>
+    <p class="lead">Thousands of titles across fiction, academics, business and more — delivered to your door.</p>
+    <a href="{% url 'catalog:book_list' %}" class="btn btn-bv-gold btn-lg px-4 mt-2">
+      <i class="bi bi-book"></i> Browse the Catalog
+    </a>
+  </div>
+</div>
+
+<div class="container mb-5">
+  <h2 class="section-title h4">Shop by Category</h2>
+  <div class="d-flex flex-wrap gap-2 mb-5">
+    {% for cat in categories %}
+      <a href="{{ cat.get_absolute_url }}" class="category-pill">
+        {% if cat.icon %}<i class="bi {{ cat.icon }}"></i>{% endif %} {{ cat.name }}
+      </a>
+    {% empty %}
+      <p class="text-muted">No categories yet.</p>
+    {% endfor %}
+  </div>
+
+  {% if featured_books %}
+  <h2 class="section-title h4">Featured Books</h2>
+  <div class="row g-3 mb-5">
+    {% for book in featured_books %}{% include "catalog/_book_card.html" %}{% endfor %}
+  </div>
+  {% endif %}
+
+  {% if bestsellers %}
+  <h2 class="section-title h4">Bestsellers</h2>
+  <div class="row g-3 mb-5">
+    {% for book in bestsellers %}{% include "catalog/_book_card.html" %}{% endfor %}
+  </div>
+  {% endif %}
+
+  {% if new_arrivals %}
+  <h2 class="section-title h4">New Arrivals</h2>
+  <div class="row g-3 mb-5">
+    {% for book in new_arrivals %}{% include "catalog/_book_card.html" %}{% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not featured_books and not bestsellers and not new_arrivals %}
+    <div class="text-center py-5">
+      <i class="bi bi-book display-1 text-muted"></i>
+      <p class="text-muted mt-3">No books have been added yet. Visit the <a href="/admin/">admin panel</a> to add books, or run the seed command.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

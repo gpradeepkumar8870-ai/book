@@ -1,0 +1,50 @@
+{% load static %}
+<div class="col-6 col-md-4 col-lg-3">
+  <div class="card book-card shadow-sm position-relative">
+    {% if book.discount_percent > 0 %}
+      <span class="badge badge-discount position-absolute m-2" style="z-index:2;">-{{ book.discount_percent }}%</span>
+    {% endif %}
+    {% if not book.in_stock %}
+      <span class="badge badge-stock-out position-absolute m-2 end-0" style="z-index:2;">Out of Stock</span>
+    {% elif book.is_low_stock %}
+      <span class="badge badge-stock-low position-absolute m-2 end-0" style="z-index:2;">Only {{ book.stock_quantity }} left</span>
+    {% endif %}
+    <a href="{{ book.get_absolute_url }}" class="text-decoration-none text-dark">
+      <div class="book-cover-wrap">
+        {% if book.cover_image %}
+          <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+        {% else %}
+          <img src="{% static 'img/placeholder_cover.png' %}" alt="{{ book.title }}">
+        {% endif %}
+      </div>
+      <div class="p-2">
+        <div class="book-title text-truncate" title="{{ book.title }}">{{ book.title }}</div>
+        <div class="book-author text-truncate">{{ book.author_names|default:"Unknown Author" }}</div>
+        <div class="star-rating small mb-1">
+          {% for i in "12345" %}
+            {% if forloop.counter <= book.rating_avg %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+          {% endfor %}
+          <span class="text-muted">({{ book.rating_count }})</span>
+        </div>
+        <div>
+          <span class="price-current">₹{{ book.current_price }}</span>
+          {% if book.discount_price %}<span class="price-original ms-1">₹{{ book.price }}</span>{% endif %}
+        </div>
+      </div>
+    </a>
+    <div class="px-2 pb-2 d-flex gap-1">
+      <form method="post" action="{% url 'cart:cart_add' book.id %}" class="flex-grow-1">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="btn btn-bv-primary btn-sm w-100" {% if not book.in_stock %}disabled{% endif %}>
+          <i class="bi bi-cart-plus"></i> Add
+        </button>
+      </form>
+      {% if user.is_authenticated %}
+      <a href="{% url 'wishlist:wishlist_toggle' book.id %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-heart"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>

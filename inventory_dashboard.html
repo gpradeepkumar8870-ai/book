@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Inventory Dashboard — BookVerse{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h1 class="h3 mb-4"><i class="bi bi-boxes"></i> Inventory Dashboard</h1>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3 text-center">
+        <div class="text-muted small">Total Books</div>
+        <div class="h3 mb-0">{{ total_books }}</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3 text-center border-warning">
+        <div class="text-muted small">Low Stock Items</div>
+        <div class="h3 mb-0 text-warning">{{ low_stock_count }}</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3 text-center border-danger">
+        <div class="text-muted small">Out of Stock</div>
+        <div class="h3 mb-0 text-danger">{{ out_of_stock_count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm p-3 mb-3">
+    <div class="text-muted small">Total Stock Value (at current selling price)</div>
+    <div class="h4 mb-0">₹{{ total_stock_value|floatformat:2 }}</div>
+  </div>
+
+  {% if low_stock %}
+  <h5 class="mt-4"><i class="bi bi-exclamation-triangle text-warning"></i> Low Stock Alerts</h5>
+  <div class="table-responsive">
+    <table class="table table-bordered inventory-table align-middle">
+      <thead><tr><th>Book</th><th>Category</th><th>Current Stock</th><th>Threshold</th><th>Update</th></tr></thead>
+      <tbody>
+        {% for book in low_stock %}
+        <tr>
+          <td>{{ book.title }}</td>
+          <td>{{ book.category.name|default:"—" }}</td>
+          <td><span class="badge badge-stock-low">{{ book.stock_quantity }}</span></td>
+          <td>{{ book.low_stock_threshold }}</td>
+          <td>
+            <form method="post" action="{% url 'catalog:inventory_update' book.id %}" class="d-flex gap-1">
+              {% csrf_token %}
+              <input type="number" name="stock_quantity" value="{{ book.stock_quantity }}" class="form-control form-control-sm" style="width:80px;">
+              <button class="btn btn-sm btn-bv-primary">Update</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if out_of_stock %}
+  <h5 class="mt-4"><i class="bi bi-x-circle text-danger"></i> Out of Stock</h5>
+  <div class="table-responsive">
+    <table class="table table-bordered inventory-table align-middle">
+      <thead><tr><th>Book</th><th>Category</th><th>Restock Quantity</th></tr></thead>
+      <tbody>
+        {% for book in out_of_stock %}
+        <tr>
+          <td>{{ book.title }}</td>
+          <td>{{ book.category.name|default:"—" }}</td>
+          <td>
+            <form method="post" action="{% url 'catalog:inventory_update' book.id %}" class="d-flex gap-1">
+              {% csrf_token %}
+              <input type="number" name="stock_quantity" value="0" class="form-control form-control-sm" style="width:80px;">
+              <button class="btn btn-sm btn-bv-primary">Update</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if not low_stock and not out_of_stock %}
+    <div class="alert alert-success mt-4"><i class="bi bi-check-circle"></i> All books are well-stocked!</div>
+  {% endif %}
+</div>
+{% endblock %}
