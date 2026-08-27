@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}My Orders — BookVerse{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h4 class="section-title">My Orders</h4>
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><a href="{% url 'orders:order_detail' order.order_number %}">{{ order.order_number }}</a></td>
+          <td>{{ order.created_at|date:"M d, Y" }}</td>
+          <td>{{ order.items.count }}</td>
+          <td>₹{{ order.total }}</td>
+          <td>{{ order.get_payment_method_display }}</td>
+          <td><span class="badge order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td><a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-outline-secondary btn-sm">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-bag-x display-1 text-muted"></i>
+    <p class="text-muted mt-3">You haven't placed any orders yet.</p>
+    <a href="{% url 'catalog:book_list' %}" class="btn btn-bv-primary">Browse Books</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

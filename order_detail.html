@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Order {{ order.order_number }} — BookVerse{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h4 class="mb-0">Order {{ order.order_number }}</h4>
+    <span class="badge order-status-badge status-{{ order.status }} fs-6">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm p-3 mb-3">
+        <h6 class="mb-3">Items</h6>
+        {% for item in order.items.all %}
+        <div class="d-flex gap-3 border-bottom py-2">
+          <div style="width:50px;height:70px;flex-shrink:0;" class="book-cover-wrap rounded">
+            {% if item.book.cover_image %}<img src="{{ item.book.cover_image.url }}" alt="{{ item.book_title }}">
+            {% else %}<img src="{% static 'img/placeholder_cover.png' %}" alt="{{ item.book_title }}">{% endif %}
+          </div>
+          <div class="flex-grow-1">
+            {% if item.book %}
+              <a href="{{ item.book.get_absolute_url }}" class="fw-semibold text-decoration-none text-dark">{{ item.book_title }}</a>
+            {% else %}
+              <span class="fw-semibold">{{ item.book_title }}</span>
+            {% endif %}
+            <div class="small text-muted">Qty: {{ item.quantity }} × ₹{{ item.price }}</div>
+          </div>
+          <div class="fw-semibold">₹{{ item.line_total }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="card shadow-sm p-3">
+        <h6 class="mb-3">Order Timeline</h6>
+        <ul class="list-unstyled mb-0">
+          {% for hist in order.status_history.all %}
+          <li class="mb-2">
+            <span class="badge order-status-badge status-{{ hist.status }}">{{ hist.get_status_display }}</span>
+            <span class="small text-muted ms-2">{{ hist.created_at|date:"M d, Y H:i" }}</span>
+            {% if hist.note %}<div class="small">{{ hist.note }}</div>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card summary-card p-4 mb-3">
+        <h6 class="mb-3">Payment & Total</h6>
+        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span>₹{{ order.subtotal }}</span></div>
+        <div class="d-flex justify-content-between small mb-1"><span>Shipping</span><span>₹{{ order.shipping_fee }}</span></div>
+        {% if order.discount %}<div class="d-flex justify-content-between small mb-1"><span>Discount</span><span>-₹{{ order.discount }}</span></div>{% endif %}
+        <hr>
+        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>₹{{ order.total }}</span></div>
+        <hr>
+        <div class="small"><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</div>
+        <div class="small"><strong>Payment Status:</strong> {{ order.get_payment_status_display }}</div>
+      </div>
+
+      <div class="card shadow-sm p-4 mb-3">
+        <h6 class="mb-2">Shipping Address</h6>
+        <p class="small mb-0">{{ order.full_name }}<br>{{ order.phone }}<br>{{ order.full_address }}</p>
+      </div>
+
+      {% if order.status == 'pending' or order.status == 'confirmed' or order.status == 'processing' %}
+      <form method="post" action="{% url 'orders:order_cancel' order.order_number %}" onsubmit="return confirm('Cancel this order?');">
+        {% csrf_token %}
+        <button class="btn btn-outline-danger w-100">Cancel Order</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
