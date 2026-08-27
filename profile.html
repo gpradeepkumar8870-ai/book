@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}My Profile — BookVerse{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm p-4 text-center">
+        <div class="mx-auto rounded-circle overflow-hidden bg-light mb-3" style="width:100px;height:100px;">
+          {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" class="w-100 h-100" style="object-fit:cover;">
+          {% else %}
+            <div class="d-flex align-items-center justify-content-center h-100"><i class="bi bi-person display-4 text-muted"></i></div>
+          {% endif %}
+        </div>
+        <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+        <p class="text-muted small">@{{ user.username }}</p>
+        <p class="small">{{ user.email }}</p>
+        {% if user.profile.phone %}<p class="small"><i class="bi bi-telephone"></i> {{ user.profile.phone }}</p>{% endif %}
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-bv-primary btn-sm mt-2">Edit Profile</a>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card shadow-sm p-4 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Recent Orders ({{ order_count }} total)</h5>
+          <a href="{% url 'orders:order_list' %}" class="small">View all</a>
+        </div>
+        {% for order in orders %}
+        <div class="d-flex justify-content-between border-bottom py-2">
+          <div>
+            <a href="{% url 'orders:order_detail' order.order_number %}">{{ order.order_number }}</a>
+            <div class="small text-muted">{{ order.created_at|date:"M d, Y" }}</div>
+          </div>
+          <div class="text-end">
+            <span class="badge order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+            <div class="small">₹{{ order.total }}</div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No orders yet.</p>
+        {% endfor %}
+      </div>
+
+      <div class="card shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Saved Addresses</h5>
+          <a href="{% url 'accounts:address_list' %}" class="small">Manage</a>
+        </div>
+        {% for addr in addresses %}
+        <div class="border-bottom py-2 small">
+          <strong>{{ addr.full_name }}</strong> {% if addr.is_default %}<span class="badge bg-secondary">Default</span>{% endif %}<br>
+          {{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+        </div>
+        {% empty %}
+        <p class="text-muted">No saved addresses.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

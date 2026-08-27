@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile — BookVerse{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="card shadow-sm p-4 mx-auto" style="max-width:600px;">
+    <h4 class="mb-3">Edit Profile</h4>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label small">First Name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label small">Last Name</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Email</label>
+        {{ form.email }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Phone</label>
+        {{ form.phone }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Date of Birth</label>
+        {{ form.date_of_birth }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Avatar</label>
+        {{ form.avatar }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Bio</label>
+        {{ form.bio }}
+      </div>
+      <button type="submit" class="btn btn-bv-primary">Save Changes</button>
+      <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

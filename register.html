@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Create Account — BookVerse{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card auth-card p-4">
+    <h3 class="text-center mb-1 brand-font">Join BookVerse</h3>
+    <p class="text-center text-muted small mb-4">Create an account to start shopping</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label small">First Name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label small">Last Name</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Email</label>
+        {{ form.email }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Password</label>
+        {{ form.password1 }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Confirm Password</label>
+        {{ form.password2 }}
+      </div>
+      {% for field in form %}
+        {% for error in field.errors %}<div class="text-danger small">{{ field.label }}: {{ error }}</div>{% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+      <button type="submit" class="btn btn-bv-primary w-100 mt-2">Create Account</button>
+    </form>
+    <p class="text-center small mt-3 mb-0">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — BookVerse{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <div class="card shadow-sm p-4 mx-auto" style="max-width:600px;">
+    <h4 class="mb-3">{{ title }}</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small">Full Name</label>
+        {{ form.full_name }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Phone</label>
+        {{ form.phone }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Address Line 1</label>
+        {{ form.address_line1 }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Address Line 2</label>
+        {{ form.address_line2 }}
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label small">City</label>
+          {{ form.city }}
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label small">State</label>
+          {{ form.state }}
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label small">Pincode</label>
+          {{ form.pincode }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Country</label>
+        {{ form.country }}
+      </div>
+      <div class="form-check mb-3">
+        {{ form.is_default }}
+        <label class="form-check-label small">Set as default address</label>
+      </div>
+      {% for field in form %}
+        {% for error in field.errors %}<div class="text-danger small">{{ field.label }}: {{ error }}</div>{% endfor %}
+      {% endfor %}
+      <button type="submit" class="btn btn-bv-primary">Save Address</button>
+      <a href="{% url 'accounts:address_list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
