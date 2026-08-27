@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Login — BookVerse{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="card auth-card p-4">
+    <h3 class="text-center mb-1 brand-font">Welcome Back</h3>
+    <p class="text-center text-muted small mb-4">Log in to continue shopping</p>
+
+    <div class="alert alert-info small">
+      <strong>Demo credentials</strong><br>
+      Admin: <code>admin</code> / <code>admin123</code><br>
+      Customer: <code>customer</code> / <code>customer123</code>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small">Username</label>
+        <input type="text" name="username" class="form-control" required autofocus>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small">Password</label>
+        <input type="password" name="password" class="form-control" required>
+      </div>
+      {% if form.errors %}<div class="text-danger small mb-2">Invalid username or password.</div>{% endif %}
+      <button type="submit" class="btn btn-bv-primary w-100">Log In</button>
+    </form>
+    <p class="text-center small mt-3 mb-0">New to BookVerse? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+  </div>
+</div>
+{% endblock %}
