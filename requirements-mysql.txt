@@ -1,0 +1,4 @@
+# Install these additionally if you switch USE_MYSQL=True in settings.py
+Django>=4.2,<5.0
+Pillow>=10.0.0
+mysqlclient>=2.2.0
