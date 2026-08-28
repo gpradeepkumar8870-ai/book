@@ -1,0 +1,123 @@
+:root {
+  --bv-navy: #1a2a4a;
+  --bv-navy-dark: #101c33;
+  --bv-gold: #d4a017;
+  --bv-gold-light: #f0c85a;
+  --bv-cream: #faf6ee;
+  --bv-text: #2b2b2b;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bv-cream);
+  color: var(--bv-text);
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+h1, h2, h3, .brand-font { font-family: 'Merriweather', serif; }
+
+.bv-navbar {
+  background: linear-gradient(135deg, var(--bv-navy) 0%, var(--bv-navy-dark) 100%);
+}
+.bv-navbar .navbar-brand { font-family: 'Merriweather', serif; font-size: 1.5rem; color: var(--bv-gold-light) !important; }
+.bv-navbar .nav-link { color: #e8e8e8 !important; }
+.bv-navbar .nav-link:hover { color: var(--bv-gold-light) !important; }
+.bv-search { max-width: 500px; }
+.bv-badge { font-size: 0.6rem; position: relative; top: -8px; left: -4px; }
+
+.bv-footer { background: var(--bv-navy-dark); color: #d9d9d9; }
+.footer-link { color: #b8c2d6; text-decoration: none; }
+.footer-link:hover { color: var(--bv-gold-light); }
+
+.hero-section {
+  background: linear-gradient(120deg, var(--bv-navy) 0%, #2c4270 100%);
+  color: white;
+  padding: 4.5rem 0;
+  border-radius: 0 0 2rem 2rem;
+}
+.hero-section h1 { font-weight: 900; }
+.hero-badge { background: var(--bv-gold); color: var(--bv-navy-dark); font-weight: 600; }
+
+.book-card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  height: 100%;
+}
+.book-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(26,42,74,0.15); }
+.book-cover-wrap {
+  aspect-ratio: 3/4;
+  background: #ece6d8;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.book-cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.book-title { font-family: 'Merriweather', serif; font-size: 0.98rem; font-weight: 700; line-height: 1.3; }
+.book-author { font-size: 0.82rem; color: #6c757d; }
+.price-current { font-weight: 700; color: var(--bv-navy); font-size: 1.05rem; }
+.price-original { text-decoration: line-through; color: #999; font-size: 0.85rem; }
+.badge-discount { background: #c0392b; }
+.badge-stock-low { background: #e67e22; }
+.badge-stock-out { background: #7f8c8d; }
+
+.category-pill {
+  background: #fff;
+  border: 1px solid #e3dcc9;
+  border-radius: 30px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 500;
+  color: var(--bv-navy);
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.15s;
+}
+.category-pill:hover { background: var(--bv-navy); color: #fff; }
+
+.section-title {
+  font-family: 'Merriweather', serif;
+  font-weight: 900;
+  border-left: 5px solid var(--bv-gold);
+  padding-left: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.star-rating { color: var(--bv-gold); }
+
+.btn-bv-primary {
+  background: var(--bv-navy);
+  color: #fff;
+  border: none;
+}
+.btn-bv-primary:hover { background: var(--bv-navy-dark); color: var(--bv-gold-light); }
+.btn-bv-gold { background: var(--bv-gold); color: var(--bv-navy-dark); font-weight: 600; border: none; }
+.btn-bv-gold:hover { background: var(--bv-gold-light); color: var(--bv-navy-dark); }
+
+.auth-card {
+  max-width: 460px;
+  margin: 3rem auto;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.cart-item-row { border-bottom: 1px solid #eee; padding: 1rem 0; }
+.summary-card { border-radius: 14px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+
+.order-status-badge { font-size: 0.75rem; padding: 0.4em 0.8em; }
+.status-pending { background: #f1c40f; }
+.status-confirmed, .status-processing { background: #3498db; }
+.status-shipped { background: #9b59b6; }
+.status-delivered { background: #27ae60; }
+.status-cancelled { background: #e74c3c; }
+
+.review-card { border-radius: 12px; border: 1px solid #eee; }
+
+.inventory-table th { background: var(--bv-navy); color: #fff; }
+
+@media (max-width: 576px) {
+  .hero-section { padding: 2.5rem 0; border-radius: 0; }
+}
