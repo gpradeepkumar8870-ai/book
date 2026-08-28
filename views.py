@@ -1,110 +1,78 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
 from django.contrib import messages
-from django.urls import reverse_lazy
-from .forms import RegisterForm, ProfileUpdateForm, AddressForm
-from .models import Address
-from orders.models import Order
-
-
-def register_view(request):
-    if request.user.is_authenticated:
-        return redirect('catalog:home')
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, f"Welcome to BookVerse, {user.first_name}! Your account has been created.")
-            return redirect('catalog:home')
-    else:
-        form = RegisterForm()
-    return render(request, 'accounts/register.html', {'form': form})
-
-
-class BookVerseLoginView(LoginView):
-    template_name = 'accounts/login.html'
-    redirect_authenticated_user = True
-
-    def form_valid(self, form):
-        messages.success(self.request, f"Welcome back, {form.get_user().first_name or form.get_user().username}!")
-        return super().form_valid(form)
-
-
-def logout_view(request):
-    logout(request)
-    messages.info(request, "You have been logged out. See you soon!")
-    return redirect('catalog:home')
+from django.views.decorators.http import require_POST
+from catalog.models import Book
+from .models import Cart, CartItem
 
 
 @login_required
-def profile_view(request):
-    orders = Order.objects.filter(user=request.user)[:5]
-    addresses = Address.objects.filter(user=request.user)
+def cart_detail_view(request):
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    items = cart.items.select_related('book').all()
+    shipping_fee = 0
+    if cart.subtotal > 0:
+        from django.conf import settings as dj_settings
+        shipping_fee = 0 if cart.subtotal >= dj_settings.FREE_SHIPPING_THRESHOLD else dj_settings.STANDARD_SHIPPING_FEE
     context = {
-        'orders': orders,
-        'addresses': addresses,
-        'order_count': Order.objects.filter(user=request.user).count(),
+        'cart': cart,
+        'items': items,
+        'shipping_fee': shipping_fee,
+        'grand_total': cart.subtotal + shipping_fee,
     }
-    return render(request, 'accounts/profile.html', context)
+    return render(request, 'cart/cart_detail.html', context)
 
 
 @login_required
-def profile_edit_view(request):
-    profile = request.user.profile
-    if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile, user=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your profile has been updated.")
-            return redirect('accounts:profile')
+@require_POST
+def cart_add_view(request, book_id):
+    book = get_object_or_404(Book, id=book_id, is_active=True)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    quantity = int(request.POST.get('quantity', 1))
+
+    if not book.in_stock:
+        messages.error(request, f"Sorry, '{book.title}' is currently out of stock.")
+        return redirect(request.META.get('HTTP_REFERER', 'catalog:home'))
+
+    item, created = CartItem.objects.get_or_create(cart=cart, book=book, defaults={'quantity': quantity})
+    if not created:
+        item.quantity += quantity
+
+    if item.quantity > book.stock_quantity:
+        item.quantity = book.stock_quantity
+        messages.warning(request, f"Only {book.stock_quantity} copies of '{book.title}' available. Cart updated to max available quantity.")
+    item.save()
+    messages.success(request, f"'{book.title}' added to your cart.")
+    return redirect(request.META.get('HTTP_REFERER', 'cart:cart_detail'))
+
+
+@login_required
+@require_POST
+def cart_update_view(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    quantity = int(request.POST.get('quantity', 1))
+    if quantity <= 0:
+        item.delete()
+        messages.info(request, "Item removed from cart.")
     else:
-        form = ProfileUpdateForm(instance=profile, user=request.user)
-    return render(request, 'accounts/profile_edit.html', {'form': form})
+        quantity = min(quantity, item.book.stock_quantity)
+        item.quantity = quantity
+        item.save()
+        messages.success(request, "Cart updated.")
+    return redirect('cart:cart_detail')
 
 
 @login_required
-def address_list_view(request):
-    addresses = Address.objects.filter(user=request.user)
-    return render(request, 'accounts/address_list.html', {'addresses': addresses})
+def cart_remove_view(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    item.delete()
+    messages.info(request, "Item removed from cart.")
+    return redirect('cart:cart_detail')
 
 
 @login_required
-def address_add_view(request):
-    if request.method == 'POST':
-        form = AddressForm(request.POST)
-        if form.is_valid():
-            address = form.save(commit=False)
-            address.user = request.user
-            address.save()
-            messages.success(request, "Address added successfully.")
-            next_url = request.GET.get('next', 'accounts:address_list')
-            return redirect(next_url)
-    else:
-        form = AddressForm()
-    return render(request, 'accounts/address_form.html', {'form': form, 'title': 'Add New Address'})
-
-
-@login_required
-def address_edit_view(request, pk):
-    address = get_object_or_404(Address, pk=pk, user=request.user)
-    if request.method == 'POST':
-        form = AddressForm(request.POST, instance=address)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Address updated successfully.")
-            return redirect('accounts:address_list')
-    else:
-        form = AddressForm(instance=address)
-    return render(request, 'accounts/address_form.html', {'form': form, 'title': 'Edit Address'})
-
-
-@login_required
-def address_delete_view(request, pk):
-    address = get_object_or_404(Address, pk=pk, user=request.user)
-    if request.method == 'POST':
-        address.delete()
-        messages.success(request, "Address removed.")
-    return redirect('accounts:address_list')
+def cart_clear_view(request):
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    cart.items.all().delete()
+    messages.info(request, "Cart cleared.")
+    return redirect('cart:cart_detail')

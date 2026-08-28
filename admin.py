@@ -1,15 +1,13 @@
 from django.contrib import admin
-from .models import Profile, Address
+from .models import Cart, CartItem
 
 
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone', 'created_at')
-    search_fields = ('user__username', 'user__email', 'phone')
+class CartItemInline(admin.TabularInline):
+    model = CartItem
+    extra = 0
 
 
-@admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'full_name', 'city', 'state', 'is_default')
-    list_filter = ('state', 'is_default')
-    search_fields = ('user__username', 'full_name', 'city', 'pincode')
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('user', 'total_items', 'subtotal', 'updated_at')
+    inlines = [CartItemInline]
